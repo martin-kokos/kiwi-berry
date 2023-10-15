@@ -43,35 +43,31 @@ jobs:
 
     - name: Install dependencies
       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-      run: poetry install --no-interaction --no-root --with dev
+      run: poetry install --no-interaction --no-root --with dev --with orjson
 
     - name: Install project
       run: |
-        poetry install --no-interaction
+        poetry install --no-interaction --with dev
 
     - name: Lint with flake8
       run: |
+        source .venv/bin/activate
         # stop the build if there are Python syntax errors or undefined names
-        poetry run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        poetry run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-    - name: Check code quality
-      uses: ricardochaves/python-lint@v1.4.0
-      with:
-        python-root-list: "kiwi_berry/ tests/"
-        use-pylint: false
-        use-pycodestyle: false
-        use-flake8: true
-        use-black: true
-        use-mypy: true
-        use-isort: true
-        extra-pylint-options: ""
-        extra-pycodestyle-options: ""
-        extra-flake8-options: ""
-        extra-black-options: ""
-        extra-mypy-options: ""
-        extra-isort-options: ""
+    - name: Check with black
+      run: |
+        source .venv/bin/activate
+        black --check kiwi_berry/
+        black --check tests/
+
+    - name: Check with mypy
+      run: |
+        source .venv/bin/activate
+        mypy kiwi_berry/
+        mypy tests/
 
     - name: Test with pytest
       run: |

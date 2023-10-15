@@ -1,8 +1,8 @@
-from typing import NewType
+from typing import NewType, List
 import datetime as dt
 
-IntBool = NewType('IntBool', bool)
-StrBool = NewType('StrBool', bool)
-SlashDate = NewType('SlashDate', dt.date)
-CommaIntList = NewType('CommaIntList', list[int])
-CommaStrList = NewType('CommaStr', list[str])
+IntBool = NewType("IntBool", bool)
+StrBool = NewType("StrBool", bool)
+SlashDate = NewType("SlashDate", dt.date)
+CommaIntList = NewType("CommaIntList", List[int])
+CommaStrList = NewType("CommaStrList", List[str])

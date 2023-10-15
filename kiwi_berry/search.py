@@ -5,7 +5,8 @@ from kiwi_berry.fucking_types import CommaStrList, SlashDate
 from kiwi_berry.fucking_types import IntBool, StrBool
 from kiwi_berry.fucking_types import CommaIntList
 
-from typing import Any, Optional, get_args, get_type_hints
+from typing import Any, Optional, List, Dict
+from typing import get_args, get_type_hints
 
 import datetime as dt
 
@@ -17,7 +18,7 @@ import os
 try:
     import orjson as json
 except ImportError:
-    import json
+    import json  # type: ignore
 
 log = getLogger(__name__)
 
@@ -65,10 +66,10 @@ class SearchParams(BaseModel):
     child_hold_bag: Optional[CommaIntList] = None
     child_hand_bag: Optional[CommaIntList] = None
 
-    fly_days: Optional[list] = None
+    fly_days: Optional[List] = None
     fly_days_type: Optional[str] = None
 
-    ret_fly_days: Optional[list] = None
+    ret_fly_days: Optional[List] = None
     ret_fly_days_type: Optional[str] = None
 
     only_working_days: Optional[StrBool] = None
@@ -125,13 +126,13 @@ class SearchParams(BaseModel):
             typ = typ
 
         if typ == SlashDate:
-            return dt.datetime.strptime(value, '%d/%m/%Y').date()
+            return dt.datetime.strptime(value, "%d/%m/%Y").date()
 
         if typ == CommaIntList:
-            return [int(e) for e in value.split(',')]
+            return [int(e) for e in value.split(",")]
 
         if typ == CommaStrList:
-            return value.split(',')
+            return value.split(",")
 
         if typ == IntBool:
             return bool(int(value))
@@ -151,13 +152,13 @@ class SearchParams(BaseModel):
             typ = typ
 
         if typ == SlashDate:
-            return value.strftime('%d/%m/%Y')
+            return value.strftime("%d/%m/%Y")
 
         if typ == CommaIntList:
-            return ','.join(str(e) for e in value)
+            return ",".join(str(e) for e in value)
 
         if typ == CommaStrList:
-            return ','.join(value)
+            return ",".join(value)
 
         if typ == IntBool:
             return str(int(value))
@@ -174,9 +175,7 @@ class SearchParams(BaseModel):
         with all the weird type conversions.
         """
 
-        query = parse.urlparse(
-            url
-        ).query
+        query = parse.urlparse(url).query
         query_qs = dict(parse.parse_qs(query).items())
 
         for k, v in query_qs.items():
@@ -196,7 +195,7 @@ class SearchParams(BaseModel):
 
         return SearchParams(**new_args)
 
-    def to_url_params(self) -> dict['str', Any]:
+    def to_url_params(self) -> Dict["str", Any]:
         """
         Convert to url params of which some types are oddly formated
         """
@@ -216,7 +215,6 @@ class SearchParams(BaseModel):
 
 
 class Sector(BaseModel):
-
     id: str
     bags_recheck_required: bool
     cityCodeFrom: str
@@ -233,7 +231,6 @@ class Sector(BaseModel):
     flyFrom: str
     flyTo: str
     guarantee: bool
-    id: str
     local_arrival: dt.datetime
     local_departure: dt.datetime
     operating_carrier: str
@@ -252,37 +249,36 @@ class Sector(BaseModel):
         kwargs["return_leg"] = kwargs["return"]
         super().__init__(**kwargs)
 
-    @field_validator('flight_no', mode='before')
+    @field_validator("flight_no", mode="before")
     def flight_no_str(cls, v):
         return str(v)
 
     def ascii_render(self):
         return (
-            f'\\ {self.local_departure:%Y-%m-%d} '
-            f'{self.flyFrom}-{self.flyTo} {self.local_departure:%H:%M} '
-            f'\\ {self.operating_carrier} {self.flight_no}'
+            f"\\ {self.local_departure:%Y-%m-%d} "
+            f"{self.flyFrom}-{self.flyTo} {self.local_departure:%H:%M} "
+            f"\\ {self.operating_carrier} {self.flight_no}"
         )
 
 
 class Itinerary(BaseModel):
-
-    airlines: list[str]
-    availability: dict
-    baglimit: dict
-    bags_price: dict
+    airlines: List[str]
+    availability: Dict
+    baglimit: Dict
+    bags_price: Dict
     booking_token: str
     cityCodeFrom: str
     cityCodeTo: str
     cityFrom: str
     cityTo: str
-    conversion: dict
-    countryFrom: dict
-    countryTo: dict
+    conversion: Dict
+    countryFrom: Dict
+    countryTo: Dict
     deep_link: str
     distance: float
-    duration: dict
+    duration: Dict
     facilitated_booking_available: bool
-    fare: dict
+    fare: Dict
     flyFrom: str
     flyTo: str
     has_airport_change: bool
@@ -294,7 +290,7 @@ class Itinerary(BaseModel):
     pnr_count: int
     price: float
     quality: float
-    route: list[Sector]
+    route: List[Sector]
     technical_stops: int
     throw_away_ticketing: bool
     utc_arrival: dt.datetime
@@ -305,16 +301,15 @@ class Itinerary(BaseModel):
 
     def ascii_render(self):
         secs = []
-        secs.append(f'+---- {self.price} ----')
+        secs.append(f"+---- {self.price} ----")
         for i, sec in enumerate(self.route, 1):
-            offset = i * ' '
+            offset = i * " "
             secs.append(offset + sec.ascii_render())
-        return '\n'.join(secs)
+        return "\n".join(secs)
 
 
 class Response(BaseModel):
-
-    data: list[Itinerary]
+    data: List[Itinerary]
     search_id: str
     currency: str
     fx_rate: float
@@ -333,36 +328,27 @@ class Response(BaseModel):
         return len(self.data)
 
     def show(self):
-        return print('\n\n'.join(i.ascii_render() for i in self.data))
+        return print("\n\n".join(i.ascii_render() for i in self.data))
 
 
-class Client():
-
-    server = 'https://api.tequila.kiwi.com/v2'
-    endpoint = '/search'
+class Client:
+    server = "https://api.tequila.kiwi.com/v2"
+    endpoint = "/search"
 
     def __init__(self, apikey=None):
-
-        apikey = apikey or os.environ.get('KIWI_APIKEY')
+        apikey = apikey or os.environ.get("KIWI_APIKEY")
 
         if not apikey:
-            log.warn('No API key. Pass it to client as apikey arg,'
-                     'or provide it as the KIWI_APIKEY env variable.')
+            log.warn("No API key. Pass it to client as apikey arg," "or provide it as the KIWI_APIKEY env variable.")
         else:
-            self.headers = {
-                'apikey': apikey
-            }
+            self.headers = {"apikey": apikey}
 
     async def search(self, search_params) -> Response:
         async with aiohttp.ClientSession(
             headers=self.headers,
             read_timeout=300,
         ) as sess:
-            async with sess.get(
-                    self.server + self.endpoint,
-                    params=search_params.to_url_params()
-                    ) as resp:
-
+            async with sess.get(self.server + self.endpoint, params=search_params.to_url_params()) as resp:
                 if resp.status != 200:
                     log.error(f"{resp.url}\nHTTP Error {resp.status}: {await resp.text()}")
                     resp.raise_for_status()
@@ -371,10 +357,11 @@ class Client():
 
         response = Response.from_json(payload)
         if len(response) < 0:
-            log.warn('Response had no results')
+            log.warn("Response had no results")
         return response
 
 
 if __name__ == "__main__":
     import doctest
+
     doctest.testmod()

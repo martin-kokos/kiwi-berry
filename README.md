@@ -1,6 +1,8 @@
 # Kiwi.com search API wrapper library
 This wrapper library is a personal project and has no affiliation with Kiwi.com
 
+![Codecov](https://img.shields.io/codecov/c/github/martin-kokos/kiwi-berry)
+
 ## Account
 The API is restricted by API key, so one has to create an account at https://tequila.kiwi.com/ . AFAIK, no human-in-the-loop approval process is required, so the creation is pretty much instant.
 
