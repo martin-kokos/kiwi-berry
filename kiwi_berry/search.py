@@ -1,6 +1,4 @@
-from aiohttp.client_exceptions import ClientResponseError
 from pydantic import BaseModel, ConfigDict, field_validator
-from pydantic.fields import Field
 import aiohttp
 
 from kiwi_berry.fucking_types import CommaStrList, SlashDate
@@ -240,7 +238,7 @@ class Sector(BaseModel):
     local_departure: dt.datetime
     operating_carrier: str
     operating_flight_no: str
-    #return: IntBool  # return is a reserved word, so we have to add this later
+    # return: IntBool  # return is a reserved word, so we parse this later
     return_leg: IntBool
     utc_arrival: dt.datetime
     utc_departure: dt.datetime
@@ -259,7 +257,11 @@ class Sector(BaseModel):
         return str(v)
 
     def ascii_render(self):
-        return f'\\ {self.local_departure:%Y-%m-%d} {self.flyFrom}-{self.flyTo} {self.local_departure:%H:%M} \\ {self.operating_carrier} {self.flight_no}'
+        return (
+            f'\\ {self.local_departure:%Y-%m-%d} '
+            f'{self.flyFrom}-{self.flyTo} {self.local_departure:%H:%M} '
+            f'\\ {self.operating_carrier} {self.flight_no}'
+        )
 
 
 class Itinerary(BaseModel):
