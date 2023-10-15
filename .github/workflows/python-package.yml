@@ -77,3 +77,9 @@ jobs:
       run: |
         source .venv/bin/activate
         poetry run pytest --cov=./kiwi_berry --cov-report=xml tests/
+
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v3
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
