@@ -9,7 +9,7 @@ keywords = ["kiwi.com", "flights", "search", "API"]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-pydantic = "^2.3.0"
+pydantic = "^2.5.1"
 aiohttp = "^3.8.5"
 
 [tool.poetry.group.dev.dependencies]
