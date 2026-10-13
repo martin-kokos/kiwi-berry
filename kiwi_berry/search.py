@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator, computed_field
 import aiohttp
 
 from kiwi_berry.fucking_types import CommaStrList, SlashDate
@@ -253,12 +253,26 @@ class Sector(BaseModel):
     def flight_no_str(cls, v):
         return str(v)
 
-    def ascii_render(self):
+    def _repr_pretty_(self, cycle=False):
         return (
             f"\\ {self.local_departure:%Y-%m-%d} "
             f"{self.flyFrom}-{self.flyTo} {self.local_departure:%H:%M} "
             f"\\ {self.operating_carrier} {self.flight_no}"
         )
+
+
+class Leg(BaseModel):
+    sectors: List[Sector]
+    return_leg: bool = False
+
+    def _repr_pretty_(self, cycle=False):
+        lines = []
+
+        for i, sec in enumerate(self.sectors, 1):
+            offset = i * " "
+            lines.append(offset + sec._repr_pretty_())
+
+        return "\n".join(lines)
 
 
 class Itinerary(BaseModel):
@@ -299,12 +313,29 @@ class Itinerary(BaseModel):
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    def ascii_render(self):
+    @computed_field
+    @property
+    def legs(self):
+        outbound_sectors = []
+        inbound_sectors = []
+
+        for sector in self.route:
+            if sector.return_leg is False:
+                outbound_sectors.append(sector)
+            else:
+                inbound_sectors.append(sector)
+        legs = [Leg(sectors=outbound_sectors)]
+        if inbound_sectors:
+            legs.append(Leg(sectors=inbound_sectors, return_leg=True))
+
+        return legs
+
+    def _repr_pretty_(self, cycle=False):
         secs = []
         secs.append(f"+---- {self.price} ----")
         for i, sec in enumerate(self.route, 1):
             offset = i * " "
-            secs.append(offset + sec.ascii_render())
+            secs.append(offset + sec._repr_pretty_())
         return "\n".join(secs)
 
 
@@ -328,7 +359,7 @@ class Response(BaseModel):
         return len(self.data)
 
     def show(self):
-        return print("\n\n".join(i.ascii_render() for i in self.data))
+        return print("\n\n".join(i._repr_pretty_() for i in self.data))
 
 
 class Client:
