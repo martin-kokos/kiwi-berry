@@ -1,7 +1,6 @@
 import json
-from kiwi_berry.search import Response
-from kiwi_berry.search import Itinerary
-from kiwi_berry.search import Sector
+
+from kiwi_berry.search import Itinerary, Response, Sector
 
 
 def test_sector(shared_datadir):

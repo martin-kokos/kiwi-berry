@@ -1,19 +1,19 @@
-from pydantic import BaseModel, ConfigDict, field_validator, computed_field
-import aiohttp
-
-from kiwi_berry.fucking_types import CommaStrList, SlashDate
-from kiwi_berry.fucking_types import IntBool, StrBool
-from kiwi_berry.fucking_types import CommaIntList
-
-from typing import Any, Optional, List, Dict
-from typing import get_args, get_type_hints
-
 import datetime as dt
-
+import os
 from logging import getLogger
+from typing import Any, get_args, get_type_hints
 from urllib import parse
 
-import os
+import aiohttp
+from pydantic import BaseModel, ConfigDict, computed_field, field_validator
+
+from kiwi_berry.fucking_types import (
+    CommaIntList,
+    CommaStrList,
+    IntBool,
+    SlashDate,
+    StrBool,
+)
 
 try:
     import orjson as json
@@ -37,84 +37,84 @@ class SearchParams(BaseModel):
     fly_to: str
 
     date_from: SlashDate
-    date_to: Optional[SlashDate] = None
+    date_to: SlashDate | None = None
 
     adults: int
-    children: Optional[int] = None
-    infants: Optional[int] = None
+    children: int | None = None
+    infants: int | None = None
 
-    return_from: Optional[SlashDate] = None
-    return_to: Optional[SlashDate] = None
+    return_from: SlashDate | None = None
+    return_to: SlashDate | None = None
 
-    nights_in_dst_from: Optional[int] = None
-    nights_in_dst_to: Optional[int] = None
+    nights_in_dst_from: int | None = None
+    nights_in_dst_to: int | None = None
 
-    max_fly_duration: Optional[int] = None
+    max_fly_duration: int | None = None
 
-    ret_from_diff_city: Optional[StrBool] = None
-    ret_to_diff_city: Optional[StrBool] = None
+    ret_from_diff_city: StrBool | None = None
+    ret_to_diff_city: StrBool | None = None
 
-    one_for_city: Optional[IntBool] = None
-    one_per_date: Optional[IntBool] = None
+    one_for_city: IntBool | None = None
+    one_per_date: IntBool | None = None
 
-    selected_cabins: Optional[str] = None
-    mix_with_cabins: Optional[str] = None
+    selected_cabins: str | None = None
+    mix_with_cabins: str | None = None
 
-    adult_hold_bag: Optional[CommaIntList] = None
-    adult_hand_bag: Optional[CommaIntList] = None
+    adult_hold_bag: CommaIntList | None = None
+    adult_hand_bag: CommaIntList | None = None
 
-    child_hold_bag: Optional[CommaIntList] = None
-    child_hand_bag: Optional[CommaIntList] = None
+    child_hold_bag: CommaIntList | None = None
+    child_hand_bag: CommaIntList | None = None
 
-    fly_days: Optional[List] = None
-    fly_days_type: Optional[str] = None
+    fly_days: list | None = None
+    fly_days_type: str | None = None
 
-    ret_fly_days: Optional[List] = None
-    ret_fly_days_type: Optional[str] = None
+    ret_fly_days: list | None = None
+    ret_fly_days_type: str | None = None
 
-    only_working_days: Optional[StrBool] = None
-    only_weekends: Optional[StrBool] = None
+    only_working_days: StrBool | None = None
+    only_weekends: StrBool | None = None
 
-    partner_market: Optional[str] = None
+    partner_market: str | None = None
 
-    curr: Optional[str] = None
-    locale: Optional[str] = None
+    curr: str | None = None
+    locale: str | None = None
 
-    price_from: Optional[int] = None
-    price_to: Optional[int] = None
+    price_from: int | None = None
+    price_to: int | None = None
 
-    dtime_from: Optional[dt.time] = None
-    dtime_to: Optional[dt.time] = None
-    atime_from: Optional[dt.time] = None
-    atime_to: Optional[dt.time] = None
+    dtime_from: dt.time | None = None
+    dtime_to: dt.time | None = None
+    atime_from: dt.time | None = None
+    atime_to: dt.time | None = None
 
-    ret_dtime_from: Optional[SlashDate] = None
-    ret_dtime_to: Optional[SlashDate] = None
-    ret_atime_from: Optional[SlashDate] = None
-    ret_atime_to: Optional[SlashDate] = None
+    ret_dtime_from: SlashDate | None = None
+    ret_dtime_to: SlashDate | None = None
+    ret_atime_from: SlashDate | None = None
+    ret_atime_to: SlashDate | None = None
 
-    stopover_from: Optional[dt.timedelta] = None
-    stopover_to: Optional[dt.timedelta] = None
+    stopover_from: dt.timedelta | None = None
+    stopover_to: dt.timedelta | None = None
 
-    max_stopovers: Optional[int] = None
-    max_sector_stopovers: Optional[int] = None
+    max_stopovers: int | None = None
+    max_sector_stopovers: int | None = None
 
     # https://tequila.kiwi.com/portal/docs/faq/itineraries_with_connection_on_different_airport
-    conn_on_diff_airport: Optional[IntBool] = None
-    ret_from_diff_airport: Optional[IntBool] = None
-    ret_to_diff_airport: Optional[IntBool] = None
+    conn_on_diff_airport: IntBool | None = None
+    ret_from_diff_airport: IntBool | None = None
+    ret_to_diff_airport: IntBool | None = None
 
-    select_airlines: Optional[CommaStrList] = None
-    select_airlines_exclude: Optional[CommaStrList] = None
+    select_airlines: CommaStrList | None = None
+    select_airlines_exclude: CommaStrList | None = None
 
     # stopover airport whitelist, blacklist
-    select_stop_airport: Optional[CommaStrList] = None
-    select_stop_airport_exclude: Optional[CommaStrList] = None
+    select_stop_airport: CommaStrList | None = None
+    select_stop_airport_exclude: CommaStrList | None = None
 
-    vehicle_type: Optional[str] = None
-    enable_vi: Optional[IntBool] = None
-    sort: Optional[str] = None
-    limit: Optional[int] = None
+    vehicle_type: str | None = None
+    enable_vi: IntBool | None = None
+    sort: str | None = None
+    limit: int | None = None
 
     @staticmethod
     def url_parse_type(value, typ):
@@ -122,8 +122,6 @@ class SearchParams(BaseModel):
         if args:
             # Type is wrapped in Optional[...]
             typ = args[0]
-        else:
-            typ = typ
 
         if typ == SlashDate:
             return dt.datetime.strptime(value, "%d/%m/%Y").date()
@@ -148,8 +146,6 @@ class SearchParams(BaseModel):
         if args:
             # Type is wrapped in Optional[...]
             typ = args[0]
-        else:
-            typ = typ
 
         if typ == SlashDate:
             return value.strftime("%d/%m/%Y")
@@ -180,7 +176,7 @@ class SearchParams(BaseModel):
 
         for k, v in query_qs.items():
             if len(v) > 1:
-                log.warn("Multiple '%s' params in url", k)
+                log.warning("Multiple '%s' params in url", k)
 
         new_args = {}
 
@@ -195,7 +191,7 @@ class SearchParams(BaseModel):
 
         return SearchParams(**new_args)
 
-    def to_url_params(self) -> Dict["str", Any]:
+    def to_url_params(self) -> dict["str", Any]:
         """
         Convert to url params of which some types are oddly formated
         """
@@ -222,7 +218,7 @@ class Sector(BaseModel):
     cityFrom: str
     cityTo: str
     combination_id: str
-    equipment: Optional[str]  # deprecated in favor of vehicle_type
+    equipment: str | None  # deprecated in favor of vehicle_type
     fare_basis: str
     fare_category: str
     fare_classes: str
@@ -262,7 +258,7 @@ class Sector(BaseModel):
 
 
 class Leg(BaseModel):
-    sectors: List[Sector]
+    sectors: list[Sector]
     return_leg: bool = False
 
     def _repr_pretty_(self, cycle=False):
@@ -276,23 +272,23 @@ class Leg(BaseModel):
 
 
 class Itinerary(BaseModel):
-    airlines: List[str]
-    availability: Dict
-    baglimit: Dict
-    bags_price: Dict
+    airlines: list[str]
+    availability: dict
+    baglimit: dict
+    bags_price: dict
     booking_token: str
     cityCodeFrom: str
     cityCodeTo: str
     cityFrom: str
     cityTo: str
-    conversion: Dict
-    countryFrom: Dict
-    countryTo: Dict
+    conversion: dict
+    countryFrom: dict
+    countryTo: dict
     deep_link: str
     distance: float
-    duration: Dict
+    duration: dict
     facilitated_booking_available: bool
-    fare: Dict
+    fare: dict
     flyFrom: str
     flyTo: str
     has_airport_change: bool
@@ -300,11 +296,11 @@ class Itinerary(BaseModel):
     id: str
     local_arrival: dt.datetime
     local_departure: dt.datetime
-    nightsInDest: Optional[int]
+    nightsInDest: int | None
     pnr_count: int
     price: float
     quality: float
-    route: List[Sector]
+    route: list[Sector]
     technical_stops: int
     throw_away_ticketing: bool
     utc_arrival: dt.datetime
@@ -313,8 +309,8 @@ class Itinerary(BaseModel):
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    @computed_field
     @property
+    @computed_field
     def legs(self):
         outbound_sectors = []
         inbound_sectors = []
@@ -340,11 +336,11 @@ class Itinerary(BaseModel):
 
 
 class Response(BaseModel):
-    data: List[Itinerary]
+    data: list[Itinerary]
     search_id: str
     currency: str
     fx_rate: float
-    search_params: Optional[SearchParams] = None
+    search_params: SearchParams | None = None
 
     @classmethod
     def from_json(cls, payload: bytes):
@@ -370,7 +366,7 @@ class Client:
         apikey = apikey or os.environ.get("KIWI_APIKEY")
 
         if not apikey:
-            log.warn("No API key. Pass it to client as apikey arg," "or provide it as the KIWI_APIKEY env variable.")
+            log.warning("No API key. Pass it to client as apikey arg," "or provide it as the KIWI_APIKEY env variable.")
         else:
             self.headers = {"apikey": apikey}
 
@@ -378,8 +374,7 @@ class Client:
         async with aiohttp.ClientSession(
             headers=self.headers,
             read_timeout=300,
-        ) as sess:
-            async with sess.get(self.server + self.endpoint, params=search_params.to_url_params()) as resp:
+        ) as sess, sess.get(self.server + self.endpoint, params=search_params.to_url_params()) as resp:
                 if resp.status != 200:
                     log.error(f"{resp.url}\nHTTP Error {resp.status}: {await resp.text()}")
                     resp.raise_for_status()
@@ -388,7 +383,7 @@ class Client:
 
         response = Response.from_json(payload)
         if len(response) < 0:
-            log.warn("Response had no results")
+            log.warning("Response had no results")
         return response
 
 
